@@ -1,0 +1,16 @@
+
+dependencies {
+    api project(':games5e-worker:sdk-java')
+}
+
+task deploy(type: Copy) {
+    dependsOn build
+    from jar.archiveFile
+    into "$rootDir/env/plugins"
+}
+
+jar {
+    from configurations.runtimeClasspath.collect {it.directory ? it : zipTree(it) }
+}
+
+

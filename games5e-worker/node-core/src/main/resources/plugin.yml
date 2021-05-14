@@ -1,0 +1,7 @@
+name: GameNode
+version: 0.1
+main: implario.games.node.GameNode
+commands:
+  game: {}
+  g1: {}
+  g2: {}

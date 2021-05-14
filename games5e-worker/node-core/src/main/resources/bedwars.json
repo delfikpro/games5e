@@ -1,0 +1,19 @@
+{
+  "teams": [
+    {
+      "color": "RED",
+      "assignedPlayers": [
+        "8a660e94-b6aa-37cf-85f5-557a4d6a7965"
+      ],
+      "bedAlive": true
+    },
+    {
+      "color": "BLUE",
+      "assignedPlayers": [
+        "f475d676-94f7-351d-9064-ee66e0d66b9e"
+      ],
+      "bedAlive": true
+    }
+  ]
+}
+

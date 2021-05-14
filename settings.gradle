@@ -1,0 +1,11 @@
+
+rootProject.name = 'games5e'
+
+include 'games5e-minder',
+        'games5e-speech',
+        'games5e-worker',
+        'games5e-worker:sdk-java',
+        'games5e-worker:sdk-kotlin',
+        'games5e-worker:node-core',
+        'games5e-worker:node-cristalix',
+        'games5e-worker:example'

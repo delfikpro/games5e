@@ -1,0 +1,17 @@
+
+dependencies {
+    compileOnly project(':games5e-worker:sdk-java')
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'examplegame.bedwars.BedWarsGame'
+    }
+}
+
+
+task deploy(type: Copy) {
+    dependsOn build
+    from jar.archiveFile
+    into "$rootDir/env/images"
+}
