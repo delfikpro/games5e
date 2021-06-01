@@ -1,3 +1,0 @@
-dependencies {
-    api project(':games5e-worker:node-core')
-}

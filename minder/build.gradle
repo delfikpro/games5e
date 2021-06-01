@@ -1,0 +1,5 @@
+
+dependencies {
+    api 'net.sf.jopt-simple:jopt-simple:6.0-alpha-3'
+    api project(':speech')
+}

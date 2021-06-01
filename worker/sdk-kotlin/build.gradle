@@ -1,0 +1,9 @@
+apply plugin: 'kotlin'
+
+version '0.0.1-SNAPSHOT'
+
+dependencies {
+    api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    api project(':worker:sdk-java')
+
+}

@@ -1,12 +1,12 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
 }
 
-group 'dev.implario'
-version '0.1-SNAPSHOT'
 
 allprojects {
 
+    group 'dev.implario.games5e'
     repositories {
         mavenCentral()
         maven {
@@ -39,7 +39,7 @@ subprojects {
         compileOnly 'cristalix:dark-paper:21.02.03'
         testCompileOnly 'cristalix:dark-paper:21.02.03'
 
-        api 'dev.implario:nettier:1.0.0'
+        api 'dev.implario:nettier:1.0.4'
         api 'implario:humanize:1.1.3'
         api 'clepto:clepto-bukkit:3.4.2'
         api 'clepto:clepto-cristalix:3.0.2'
@@ -47,3 +47,35 @@ subprojects {
     }
 }
 
+publishing {
+    repositories {
+        maven {
+            name 'implario'
+            url 'https://repo.implario.dev/public'
+            credentials {
+                username System.getenv('IMPLARIO_REPO_USER')
+                password System.getenv('IMPLARIO_REPO_PASSWORD')
+            }
+        }
+    }
+}
+
+subprojects {
+
+    afterEvaluate {
+        if (version != 'unspecified') publishing {
+            def p = project
+            println(p.name)
+            publications {
+                create(p.name, MavenPublication) {
+                    it.groupId = p.group
+                    it.artifactId = p.name
+                    it.version = p.version
+                    it.from p.components['java']
+                }
+            }
+        }
+    }
+
+
+}
