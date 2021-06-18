@@ -91,21 +91,32 @@ public class GameNode extends JavaPlugin {
         try {
             Class.forName("com.destroystokyo.paper.event.player.PlayerInitialSpawnEvent");
             globalContext.on(PlayerInitialSpawnEvent.class, e -> {
+
+                Game game = playerDistributor.assignGame(e.getPlayer().getUniqueId());
+                game.getPlayers().add(e.getPlayer());
+
+                Location loc = game.getSpawnLocation(e.getPlayer().getUniqueId());
+                e.setSpawnLocation(loc);
+            });
+            globalContext.on(PlayerSpawnLocationEvent.class, e -> {
+
+
                 Location loc = gameManager.getGame(e.getPlayer()).getSpawnLocation(e.getPlayer().getUniqueId());
                 e.setSpawnLocation(loc);
             });
         } catch (ClassNotFoundException ignored) {
+
+            globalContext.on(PlayerSpawnLocationEvent.class, e -> {
+
+                Game game = playerDistributor.assignGame(e.getPlayer().getUniqueId());
+
+                game.getPlayers().add(e.getPlayer());
+
+                Location loc = game.getSpawnLocation(e.getPlayer().getUniqueId());
+                e.setSpawnLocation(loc);
+            });
         }
 
-        globalContext.on(PlayerSpawnLocationEvent.class, e -> {
-
-            Game game = playerDistributor.assignGame(e.getPlayer().getUniqueId());
-
-            game.getPlayers().add(e.getPlayer());
-
-            Location loc = game.getSpawnLocation(e.getPlayer().getUniqueId());
-            e.setSpawnLocation(loc);
-        });
 
         globalContext.on(PlayerRespawnEvent.class, EventPriority.LOWEST, e -> {
 
