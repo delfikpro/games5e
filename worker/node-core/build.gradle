@@ -2,7 +2,7 @@ version '0.0.1-SNAPSHOT'
 
 dependencies {
     api project(':worker:sdk-java')
-    api project(':speech')
+    api project(':commons')
 }
 
 task deploy(type: Copy) {

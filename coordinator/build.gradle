@@ -1,5 +1,6 @@
 
 dependencies {
     api 'net.sf.jopt-simple:jopt-simple:6.0-alpha-3'
-    api project(':speech')
+    api project(':commons')
+    api 'com.google.inject:guice:5.0.1'
 }

@@ -19,8 +19,8 @@ import implario.games.node.loader.GameLoader;
 import implario.games.node.test.SimpleArea;
 import implario.games.sdk.Game;
 import implario.games.sdk.GameContext;
-import implario.games5e.speech.PacketCreateGame;
-import implario.games5e.speech.PacketError;
+import implario.games5e.packets.PacketCreateGame;
+import implario.games5e.packets.PacketError;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.*;
@@ -28,15 +28,12 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.io.File;
-import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
 

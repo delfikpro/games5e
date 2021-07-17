@@ -1,4 +1,4 @@
-package implario.games5e.speech;
+package implario.games5e.packets;
 
 import lombok.Data;
 

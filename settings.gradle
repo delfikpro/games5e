@@ -1,10 +1,10 @@
 
 rootProject.name = 'games5e'
 
-include 'minder',
-        'speech',
+include 'coordinator',
+        'commons',
         'worker',
         'worker:sdk-java',
         'worker:sdk-kotlin',
         'worker:node-core'
-//        'games5e-worker:example'
+        'worker:example'
