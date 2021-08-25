@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public interface Balancer {
 
-    GameNode getSufficientNode(Image image);
+    GameNode getSufficientNode(String imageId);
 
     RunningGame getRunningGame(UUID gameId);
 

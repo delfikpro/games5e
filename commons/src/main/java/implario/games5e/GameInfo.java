@@ -11,7 +11,6 @@ public class GameInfo {
 
     private final UUID gameId;
     private final UUID creatorId;
-    private final List<UUID> players;
 
     private final String imageId;
     private final long createdAt;

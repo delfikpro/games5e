@@ -9,18 +9,28 @@ public class SimpleBalancer implements Balancer {
     private final List<GameNode> gameNodes = new ArrayList<>();
 
     @Override
-    public GameNode getSufficientNode(Image image) {
-        return null;
+    public GameNode getSufficientNode(String imageId) {
+        return gameNodes.stream()
+                .filter(node -> node.isImageSupported(imageId))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public RunningGame getRunningGame(UUID gameId) {
+        for (GameNode gameNode : gameNodes) {
+            for (RunningGame game : gameNode.getRunningGames()) {
+                if (game.getInfo().getGameId().equals(gameId)) {
+                    return game;
+                }
+            }
+        }
         return null;
     }
 
     @Override
     public void addNode(GameNode gameNode) {
-
+        gameNodes.add(gameNode);
     }
 
 }

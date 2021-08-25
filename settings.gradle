@@ -3,8 +3,8 @@ rootProject.name = 'games5e'
 
 include 'coordinator',
         'commons',
-        'worker',
-        'worker:sdk-java',
-        'worker:sdk-kotlin',
-        'worker:node-core'
-        'worker:example'
+        'worker-bukkit',
+        'worker-bukkit:api',
+        'worker-bukkit:core',
+        'worker-bukkit:kotlin-sdk',
+        'worker-bukkit:example-game'

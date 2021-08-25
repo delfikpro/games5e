@@ -7,13 +7,16 @@ import implario.games5e.GameInfo;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public interface GameNode {
+
+    boolean isImageSupported(String imageId);
 
     NettierRemote getRemote();
 
     Collection<? extends RunningGame> getRunningGames();
 
-    void startGame(GameInfo info, Image image);
+    CompletableFuture<Void> startGame(GameInfo info, String imageId);
 
 }
