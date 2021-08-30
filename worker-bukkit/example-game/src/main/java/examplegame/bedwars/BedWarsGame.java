@@ -59,9 +59,9 @@ public class BedWarsGame extends Game {
 
     public void start() {
 
-        getDoer().every(1).seconds(routine -> {
+        getEventContext().every(20, routine -> {
 
-            int secondsLeft = GAME_DURATION - routine.getPass();
+            int secondsLeft = (int) (GAME_DURATION - routine.getPass());
 
             if (secondsLeft % 10 == 0)
                 broadcast("До конца игры осталось " + secondsLeft + " секунд.");

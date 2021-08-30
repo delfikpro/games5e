@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import dev.implario.nettier.Nettier;
 import dev.implario.nettier.NettierServer;
 import dev.implario.nettier.RemoteException;
-import dev.implario.nettier.impl.server.NettierRemoteClient;
 import implario.LoggerUtils;
 import implario.games5e.packets.*;
 import lombok.RequiredArgsConstructor;
@@ -77,6 +76,7 @@ public class CoordinatorEndpoint {
             AbstractGameNode node = new AbstractGameNode(talk.getRemote(), runningGames, packet.getNodeType().getMatcher());
 
             balancer.addNode(node);
+            talk.getRemote().setDisconnectHandler(() -> balancer.removeNode(node));
 
         });
 

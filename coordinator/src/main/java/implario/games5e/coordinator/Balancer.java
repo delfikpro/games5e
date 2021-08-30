@@ -8,6 +8,7 @@ public interface Balancer {
 
     RunningGame getRunningGame(UUID gameId);
 
-    void addNode(GameNode gameNode);
+    void addNode(GameNode node);
 
+    void removeNode(GameNode node);
 }

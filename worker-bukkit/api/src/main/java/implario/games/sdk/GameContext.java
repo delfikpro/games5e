@@ -1,7 +1,6 @@
 package implario.games.sdk;
 
-import clepto.bukkit.event.EventContext;
-import clepto.bukkit.routine.Doer;
+import dev.implario.bukkit.event.EventContext;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -10,8 +9,6 @@ import java.util.UUID;
 public interface GameContext {
 
     EventContext getEventContext();
-
-    Doer getDoer();
 
     UUID getGameId();
 

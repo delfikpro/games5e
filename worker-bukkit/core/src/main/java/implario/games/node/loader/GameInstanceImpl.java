@@ -1,8 +1,6 @@
 package implario.games.node.loader;
 
-import clepto.bukkit.event.EventContext;
-import clepto.bukkit.routine.Doer;
-import clepto.bukkit.world.Area;
+import dev.implario.bukkit.event.EventContext;
 import implario.games.sdk.GameContext;
 import lombok.Data;
 import org.bukkit.entity.Player;
@@ -14,7 +12,6 @@ import java.util.UUID;
 public class GameInstanceImpl implements GameContext {
 
     private final EventContext eventContext;
-    private final Doer doer;
     private final UUID gameId;
     private final List<Player> players;
     private final int localGameIndex;

@@ -1,9 +1,7 @@
 package implario.games.node;
 
-import clepto.bukkit.B;
-import clepto.bukkit.event.EventContext;
-import clepto.bukkit.routine.BukkitDoer;
 import com.google.gson.JsonObject;
+import dev.implario.bukkit.event.EventContext;
 import dev.implario.nettier.Nettier;
 import dev.implario.nettier.NettierClient;
 import dev.implario.nettier.RemoteException;
@@ -24,6 +22,7 @@ import implario.games5e.packets.PacketNodeHandshakeV1;
 import implario.games5e.packets.PacketOk;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -48,26 +47,25 @@ public class GameNode extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        B.plugin = this;
-
         imageProviders.add(new MavenImageProvider());
 
+        WorkerBukkitAdapter.init(this);
 
         NettierClient client = Nettier.createClient();
+
+//        client.setExecutor(r -> Bukkit.getScheduler().runTask(this, r));
         getCommand("game").setExecutor((sender, a, b, args) -> {
 
             sender.sendMessage("Creating test game...");
             try {
                 Talk talk = client.send(new PacketCreateGame(new GameInfo(
                         UUID.randomUUID(), null,
-                        "bukkit-maven https://repo.implario.dev/public dev.implario.games5e example-game 1.0-SNAPSHOT",
+                        "bukkit-maven https://repo.implario.dev/cristalix ru.cristalix duels 1.0.0-SNAPSHOT",
                         System.currentTimeMillis(), new JsonObject()
                 )));
-                talk.awaitFuture(PacketOk.class).thenAccept(t -> {
-                    System.out.println(t.getMessage());
-                    System.out.println(talk.await(PacketOk.class));
-                }).get(3, TimeUnit.SECONDS);
-            } catch (InterruptedException | TimeoutException | ExecutionException e) {
+                talk.awaitFuture(PacketOk.class).thenCompose(t -> talk.awaitFuture(PacketOk.class)).thenAccept(m ->
+                        System.out.println(m.getMessage()));
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -126,27 +124,30 @@ public class GameNode extends JavaPlugin {
 
             GameContext instance = new GameInstanceImpl(
                     new EventContext(e -> true),
-                    new BukkitDoer(this),
                     packet.getGameInfo().getGameId(),
                     new ArrayList<>(),
                     ++localGameIndex
             );
 
-            try {
-                gameManager.createGame(image, instance, packet.getGameInfo().getSettings());
-            } catch (Exception e) {
-                e.printStackTrace();
-                talk.respond(new PacketError("error while initializing game: " + e.getClass().getSimpleName() + " " + e.getMessage()));
-                return;
-            }
+            Bukkit.getScheduler().runTask(this, () -> {
+                try {
+                    gameManager.createGame(image, instance, packet.getGameInfo().getSettings());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    talk.respond(new PacketError("error while initializing game: " + e.getClass().getSimpleName() + " " + e.getMessage()));
+                    return;
+                }
+                talk.respond(new PacketOk("Game " + packet.getGameInfo().getGameId() + " is ready"));
+            });
 
-            talk.respond(new PacketOk("Game " + packet.getGameInfo().getGameId() + " is ready"));
 
         });
 
         playerDistributor = new QueryingPlayerDistributor(gameManager, client);
 
+        System.out.println("Connecting...");
         client.connect("127.0.0.1", Environment.requireInt("GAMES5E_MINDER_PORT"));
+        System.out.println("Connected!");
 
         client.setHandshakeHandler(r -> {
             r.send(new PacketNodeHandshakeV1("", NodeType.BUKKIT, new ArrayList<>(gameManager.getRunningGames().keySet())));

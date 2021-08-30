@@ -14,6 +14,7 @@ task deploy(type: Copy) {
 
 jar {
     from configurations.runtimeClasspath.collect {it.directory ? it : zipTree(it) }
+    archiveBaseName.set("bukkit-worker-core")
 }
 
 

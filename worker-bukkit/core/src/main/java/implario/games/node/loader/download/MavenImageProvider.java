@@ -1,15 +1,21 @@
 package implario.games.node.loader.download;
 
+import implario.Environment;
 import lombok.SneakyThrows;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.InputStream;
+import javax.xml.ws.http.HTTPBinding;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Base64;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,7 +65,7 @@ public class MavenImageProvider implements ImageProvider {
         System.out.println(mavenMetadata);
 
         Document document = documentBuilderFactory.newDocumentBuilder()
-                .parse(artifactUrl + "/maven-metadata.xml");
+                .parse(new ByteArrayInputStream(mavenMetadata.getBytes(StandardCharsets.UTF_8)));
 
         document.getDocumentElement().normalize();
 
@@ -87,14 +93,33 @@ public class MavenImageProvider implements ImageProvider {
         return file;
     }
 
+    private final static String REPO_USER = Environment.get("IMPLARIO_REPO_USER");
+    private final static String REPO_PASSWORD = Environment.get("IMPLARIO_REPO_PASSWORD");
+
+    @SneakyThrows
+    public static InputStream openStream(String url) {
+        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        if (REPO_USER != null && REPO_PASSWORD != null) {
+            String s = Base64.getEncoder().encodeToString((REPO_USER + ":" + REPO_PASSWORD).getBytes(StandardCharsets.UTF_8));
+            System.out.println(s);
+            conn.setRequestProperty("Authorization", "Basic " + s);
+        }
+        conn.connect();
+        System.out.println(conn.getResponseCode() + " " + conn.getResponseMessage());
+        return conn.getInputStream();
+    }
+
     @SneakyThrows
     public static String readUrl(String url) {
-        return new Scanner(new URL(url).openStream(), "UTF-8").useDelimiter("\\A").next();
+        try (InputStream in = openStream(url)) {
+            List<String> strings = IOUtils.readLines(in, StandardCharsets.UTF_8);
+            return String.join("\n", strings);
+        }
     }
 
     @SneakyThrows
     public static void downloadFile(String url, File file) {
-        try (InputStream in = new URL(url).openStream()) {
+        try (InputStream in = openStream(url)) {
             Files.copy(in, file.toPath());
         }
     }

@@ -1,7 +1,6 @@
 package implario.games.sdk;
 
-import clepto.bukkit.event.EventContext;
-import clepto.bukkit.routine.Doer;
+import dev.implario.bukkit.event.EventContext;
 import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.bukkit.Location;
@@ -17,9 +16,6 @@ public abstract class Game {
     @Delegate
     protected final EventContext eventContext;
 
-    @Delegate
-    protected final Doer doer;
-
     protected final UUID id;
 
     protected final List<Player> players;
@@ -27,7 +23,6 @@ public abstract class Game {
     protected Game(GameContext context) {
 
         this.eventContext = context.getEventContext();
-        this.doer = context.getDoer();
         this.id = context.getGameId();
         this.players = new ArrayList<>();
 

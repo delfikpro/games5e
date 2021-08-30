@@ -29,8 +29,13 @@ public class SimpleBalancer implements Balancer {
     }
 
     @Override
-    public void addNode(GameNode gameNode) {
-        gameNodes.add(gameNode);
+    public void addNode(GameNode node) {
+        gameNodes.add(node);
+    }
+
+    @Override
+    public void removeNode(GameNode node) {
+        gameNodes.remove(node);
     }
 
 }
