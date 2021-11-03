@@ -4,6 +4,6 @@ apply plugin: 'kotlin'
 
 dependencies {
     api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21'
-    api project(':worker-bukkit:api')
+    api project(':worker-bukkit:core')
 
 }

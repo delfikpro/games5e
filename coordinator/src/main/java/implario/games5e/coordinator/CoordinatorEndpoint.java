@@ -5,8 +5,13 @@ import dev.implario.nettier.Nettier;
 import dev.implario.nettier.NettierServer;
 import dev.implario.nettier.RemoteException;
 import implario.LoggerUtils;
+import implario.games5e.coordinator.queue.Party;
+import implario.games5e.coordinator.queue.Queue;
+import implario.games5e.coordinator.queue.QueueManager;
+import implario.games5e.coordinator.workers.*;
 import implario.games5e.packets.*;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -15,13 +20,16 @@ import java.util.logging.Logger;
 public class CoordinatorEndpoint {
 
     private final Balancer balancer;
-    private final Map<UUID, RunningGame> players = new HashMap<>();
+    private final GameStarter starter;
+    private final QueueManager queueManager;
+    private final Scheduler scheduler;
 
     public void start(int port) {
 
         Logger logger = LoggerUtils.simpleLogger("games5e-coordinator");
 
         NettierServer server = Nettier.createServer();
+        server.setExecutor(scheduler::run);
 
         server.setPacketTranslator((packet, expectedType) -> {
             if (packet instanceof PacketError) {
@@ -32,25 +40,20 @@ public class CoordinatorEndpoint {
 
         server.addListener(PacketCreateGame.class, (talk, packet) -> {
 
-            String imageId = packet.getGameInfo().getImageId();
+            val future = starter.startGame(packet.getGameInfo());
 
-            logger.info("Creating game " + packet.getGameInfo());
-
-            GameNode node = balancer.getSufficientNode(imageId);
-
-            if (node == null) {
-                talk.respond(new PacketError("Unable to find a sufficient node for your game"));
-                return;
+            if (!future.isCompletedExceptionally()) {
+                talk.respond(new PacketOk("Game created and is now initializing"));
             }
 
-            // ToDo: maybe check if game with that id already exists
-
-            node.startGame(packet.getGameInfo(), imageId).thenRun(() -> {
-                talk.respond(new PacketOk("Game is ready"));
-                // ToDo special packet with realm id
+            future.whenComplete((game, exception) -> {
+                if (exception != null) {
+                    exception.printStackTrace();
+                    talk.respond(new PacketError("Error starting game: " + exception.getMessage()));
+                } else {
+                    talk.respond(new PacketGameStatus(game.getInfo(), game.getMeta(), game.getState()));
+                }
             });
-
-            talk.respond(new PacketOk("Game created and is now initializing"));
 
         });
 
@@ -60,8 +63,67 @@ public class CoordinatorEndpoint {
 
             // ToDo: respond with TERMINATED state for games that existed in the past
             if (runningGame == null) talk.respond(new PacketError("No such game"));
-            else talk.respond(new PacketGameStatus(runningGame.getInfo(), runningGame.getState()));
+            else
+                talk.respond(new PacketGameStatus(runningGame.getInfo(), runningGame.getMeta(), runningGame.getState()));
 
+        });
+
+        server.addListener(PacketUpdateMeta.class, (talk, packet) -> {
+            RunningGame runningGame = balancer.getRunningGame(packet.getGameId());
+            if (runningGame == null) {
+                talk.respond(new PacketError("No such game"));
+                return;
+            }
+            runningGame.getMeta().putAll(packet.getMeta());
+            talk.respond(new PacketOk("Updated"));
+        });
+
+        server.addListener(PacketQueueSetup.class, (talk, packet) -> {
+            UUID queueId = packet.getQueueId();
+            Queue queue = queueManager.getQueue(queueId);
+            boolean create = queue == null;
+            if (create) queue = queueManager.createQueue(queueId);
+            queue.clear();
+            queue.setProperties(packet.getProperties());
+            talk.respond(new PacketOk(create ? "Queue created" : "Queue edited"));
+        });
+
+        server.addListener(PacketQueueDelete.class, (talk, packet) -> {
+            UUID queueId = packet.getQueueId();
+            if (queueManager.getQueue(queueId) == null) {
+                talk.respond(new PacketError("No queue with id " + queueId));
+                return;
+            }
+            queueManager.deleteQueue(queueId);
+            talk.respond(new PacketOk("Queue deleted"));
+        });
+
+        server.addListener(PacketQueueEnter.class, (talk, packet) -> {
+            UUID queueId = packet.getQueueId();
+            Queue queue = queueManager.getQueue(queueId);
+            if (queue == null) {
+                talk.respond(new PacketError("No queue with id " + queueId));
+                return;
+            }
+            Party party = new Party(packet.getParty(), packet.getBannedOptions(),
+                    packet.isAllowSplit(), packet.isAllowExtra());
+            queue.addParty(party);
+            talk.respond(new PacketOk("OK"));
+        });
+
+        server.addListener(PacketQueueLeave.class, (talk, packet) -> {
+            UUID queueId = packet.getQueueId();
+            Queue queue = queueManager.getQueue(queueId);
+            if (queue == null) {
+                talk.respond(new PacketError("No queue with id " + queueId));
+                return;
+            }
+            for (Iterator<Party> iterator = queue.getParties().iterator(); iterator.hasNext(); ) {
+                Party party = iterator.next();
+                party.removeAll(packet.getPlayers());
+                if (party.isEmpty()) iterator.remove();
+            }
+            talk.respond("OK");
         });
 
 
@@ -73,17 +135,17 @@ public class CoordinatorEndpoint {
             // ToDo: restore running games from packet.activeGames
             List<RunningGame> runningGames = new ArrayList<>();
 
-            AbstractGameNode node = new AbstractGameNode(talk.getRemote(), runningGames, packet.getNodeType().getMatcher());
+            List<String> supportedImagePrefixes = packet.getSupportedImagePrefixes();
+            GameNodeImpl node = new GameNodeImpl(talk.getRemote(), runningGames, s -> {
+                for (String prefix : supportedImagePrefixes) {
+                    if (s.startsWith(prefix)) return true;
+                }
+                return false;
+            });
 
             balancer.addNode(node);
             talk.getRemote().setDisconnectHandler(() -> balancer.removeNode(node));
 
-        });
-
-        server.addListener(PacketRequestPlayerInfo.class, (talk, packet) -> {
-            RunningGame game = players.get(packet.getPlayerId());
-            UUID gameId = game == null ? null : game.getInfo().getGameId();
-            talk.respond(new PacketPlayerInfo(packet.getPlayerId(), gameId));
         });
 
         server.start(port);

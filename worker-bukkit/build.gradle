@@ -37,8 +37,8 @@ subprojects {
         compileOnly 'cristalix:dark-paper:21.02.03'
         testCompileOnly 'cristalix:dark-paper:21.02.03'
 
-        implementation 'implario:humanize:1.1.3'
-        compileOnly 'dev.implario.bukkit:bukkit-tools:4.0.3'
+        api 'implario:humanize:1.1.3'
+        compileOnly 'dev.implario.bukkit:bukkit-tools:4.3.0'
     }
 }
 

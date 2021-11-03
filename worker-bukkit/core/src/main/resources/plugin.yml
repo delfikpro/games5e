@@ -1,6 +1,6 @@
 name: GameNode
 version: 0.1
-main: implario.games.node.GameNode
+main: implario.games.node.GameNodePlugin
 depend: [BukkitTools]
 commands:
   game: {}

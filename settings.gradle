@@ -4,7 +4,6 @@ rootProject.name = 'games5e'
 include 'coordinator',
         'commons',
         'worker-bukkit',
-        'worker-bukkit:api',
         'worker-bukkit:core',
         'worker-bukkit:kotlin-sdk',
         'worker-bukkit:example-game'

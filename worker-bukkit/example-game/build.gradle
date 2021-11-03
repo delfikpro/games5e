@@ -2,10 +2,6 @@
 version '1.0-SNAPSHOT'
 description 'example-game'
 
-dependencies {
-    compileOnly project(':worker-bukkit:api')
-}
-
 jar {
     manifest {
         attributes 'Main-Class': 'examplegame.bedwars.BedWarsGame'

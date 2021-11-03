@@ -1,11 +1,11 @@
 package examplegame.bedwars;
 
-import implario.games.sdk.*;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.*;
@@ -46,6 +46,11 @@ public class BedWarsGame extends Game {
 
         });
 
+    }
+
+    @Override
+    public boolean acceptPlayer(AsyncPlayerPreLoginEvent event) {
+        return true;
     }
 
     @Override

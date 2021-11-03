@@ -1,6 +1,5 @@
 package implario.games.sdk.util
 
-import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import net.minecraft.server.v1_12_R1.PacketDataSerializer
 import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload

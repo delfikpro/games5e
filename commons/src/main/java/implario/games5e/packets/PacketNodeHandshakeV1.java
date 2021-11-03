@@ -1,6 +1,5 @@
 package implario.games5e.packets;
 
-import implario.games5e.NodeType;
 import lombok.Data;
 
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.UUID;
 public class PacketNodeHandshakeV1 {
 
     private final String authToken;
-    private final NodeType nodeType;
+    private final List<String> supportedImagePrefixes;
 
     /**
      * In case of a reconnect, the coordinator needs to know about
