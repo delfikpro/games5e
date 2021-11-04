@@ -50,14 +50,6 @@ public class CoordinatorClient {
             try {
                 Game game = node.createGame(gameId, imageId, settings);
 
-                game.getReadyFuture().whenComplete((v, exception) -> {
-                    if (exception != null) {
-                        exception.printStackTrace();
-                    }
-
-                    talk.respond(new PacketGameStatus(gameInfo, game.getMeta(), exception == null ? RUNNING : TERMINATED));
-                });
-
                 talk.respond(new PacketGameStatus(packet.getGameInfo(), game.getMeta(), Games5eGameState.INITIALIZING));
 
             } catch (Exception exception) {

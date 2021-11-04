@@ -10,7 +10,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,8 +26,6 @@ public abstract class Game implements PlayerFilter {
 
     protected final Map<String, String> meta = new HashMap<>();
 
-    protected final CompletableFuture<Void> readyFuture = new CompletableFuture<>();
-
     @Setter
     private long emptySince;
 
@@ -38,10 +35,6 @@ public abstract class Game implements PlayerFilter {
         for (Player player : players) {
             player.sendMessage(messages);
         }
-    }
-
-    public void go() {
-        readyFuture.complete(null);
     }
 
 }
