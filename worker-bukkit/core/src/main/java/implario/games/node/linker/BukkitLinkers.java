@@ -134,6 +134,14 @@ public class BukkitLinkers {
 
         });
 
+        context.on(PlayerQuitEvent.class, EventPriority.HIGHEST, e -> {
+            UUID uuid = e.getPlayer().getUniqueId();
+            Game game = linker.getGameByPlayerId(uuid);
+            if (game != null) {
+                game.getPlayers().remove(e.getPlayer());
+            }
+        });
+
     }
 
 }

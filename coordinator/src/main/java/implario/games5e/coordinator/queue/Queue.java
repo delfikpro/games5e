@@ -20,7 +20,6 @@ public class Queue {
 
         List<Emission> emissions = new ArrayList<>();
         // ToDo: Merge maps with equal bounds
-        Queue.class.getResourceAsStream()
         // ToDo: Swap the loops for more randomized maps
         for (QueueProperties.TeamsBounds bounds : properties.getRandomizedBounds()) {
             while (true) {
