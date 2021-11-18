@@ -47,7 +47,7 @@ public class SessionBukkitLinker implements BukkitLinker {
     private final EventContext context = new EventContext(anything -> true);
 
     private final Cache<IdentityUUID, Game> joiningPlayers = CacheBuilder.newBuilder()
-            .expireAfterWrite(15, TimeUnit.SECONDS)
+            .expireAfterWrite(30, TimeUnit.SECONDS)
             .build();
 
     private final Map<UUID, Game> playerMap = new ConcurrentHashMap<>();

@@ -44,26 +44,27 @@ public class SimpleQueueManager implements QueueManager {
             logger.info("Created new queue map");
         }
 
-        scheduler.repeatEvery(500, () -> {
-            logger.info("Updating queues");
-            for (Queue queue : queueMap.values()) {
-                QueueProperties properties = queue.getProperties();
-                if (queue.getProperties() == null) continue;
-                String queueName = properties.getQueueId() + " for " + properties.getImageId();
-                for (Queue.Emission emission : queue.recommendedWalk()) {
-                    logger.info("Got an emission from queue " + queueName);
-                    starter.startGame(new GameInfo(UUID.randomUUID(), new UUID(0xC0DEC0DEC0DEC0DEL, 0xC0DEC0DEC0DEC0DEL),
-                                    properties.getImageId(), System.currentTimeMillis(), gson.toJsonTree(emission.getPreferences())))
-                            .whenComplete((game, t) -> {
-                                if (t != null) {
-                                    logger.log(Level.SEVERE, "Unable to start game by queue " + queueName, t);
-                                } else {
-                                    logger.info("Game started successfully: " + game);
-                                }
-                            });
-                }
-            }
-        });
+//        if (false)
+//        scheduler.repeatEvery(500, () -> {
+//            logger.info("Updating queues");
+//            for (Queue queue : queueMap.values()) {
+//                QueueProperties properties = queue.getProperties();
+//                if (queue.getProperties() == null) continue;
+//                String queueName = properties.getQueueId() + " for " + properties.getImageId();
+//                for (Queue.Emission emission : queue.toString()) {
+//                    logger.info("Got an emission from queue " + queueName);
+//                    starter.startGame(new GameInfo(UUID.randomUUID(), new UUID(0xC0DEC0DEC0DEC0DEL, 0xC0DEC0DEC0DEC0DEL),
+//                                    properties.getImageId(), System.currentTimeMillis(), gson.toJsonTree(emission.getPreferences())))
+//                            .whenComplete((game, t) -> {
+//                                if (t != null) {
+//                                    logger.log(Level.SEVERE, "Unable to start game by queue " + queueName, t);
+//                                } else {
+//                                    logger.info("Game started successfully: " + game);
+//                                }
+//                            });
+//                }
+//            }
+//        });
     }
 
     public void save() {

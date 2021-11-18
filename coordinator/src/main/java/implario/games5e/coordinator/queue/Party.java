@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Data
-public class Party implements Collection<UUID> {
+public class Party implements List<UUID> {
 
     @Delegate
     private final List<UUID> list;
