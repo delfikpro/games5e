@@ -6,4 +6,3 @@ include 'coordinator',
         'worker-bukkit',
         'worker-bukkit:core',
         'worker-bukkit:kotlin-sdk',
-        'worker-bukkit:example-game'
