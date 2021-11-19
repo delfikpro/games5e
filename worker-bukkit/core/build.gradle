@@ -1,4 +1,4 @@
-version '2.0.6'
+version '2.1.0'
 description 'bukkit-worker-core'
 
 dependencies {
@@ -12,7 +12,10 @@ task deploy(type: Copy) {
 }
 
 jar {
-    from configurations.runtimeClasspath.collect {it.directory ? it : zipTree(it) }
+    dependsOn(project(':commons').tasks.jar)
+    from {
+        configurations.runtimeClasspath.collect {it.directory ? it : zipTree(it) }
+    }
     archiveBaseName.set("bukkit-worker-core")
 }
 

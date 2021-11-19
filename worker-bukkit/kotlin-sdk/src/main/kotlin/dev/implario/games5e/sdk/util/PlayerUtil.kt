@@ -1,4 +1,4 @@
-package implario.games.sdk.util
+package dev.implario.games5e.sdk.util
 
 import io.netty.buffer.Unpooled
 import net.minecraft.server.v1_12_R1.PacketDataSerializer

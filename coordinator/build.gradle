@@ -7,4 +7,9 @@ dependencies {
 //    api 'io.javalin:javalin:4.0.0'
 }
 
-jar.from configurations.runtimeClasspath.collect(project.&zipTree)
+jar {
+    dependsOn(project(':commons').tasks.jar)
+    from {
+        configurations.runtimeClasspath.collect(project.&zipTree)
+    }
+}
