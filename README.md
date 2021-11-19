@@ -32,13 +32,13 @@ public void onEnable() {
     
     // Через объект GameNode можно создавать и запускать игры,
     // Получать местоположение игроков
-    GameNode node = GameNode();
+    GameNode node = new GameNode();
     
     // Когда координатор создаёт игру, он ищет подходящие ноды по префиксам.
     // Например наша нода поддерживает все типы билдбатла:
     // Добавляем префикс "build-battle", и координатор будет кидать нам всё, 
     // например "build-battle crazy", "build-battle normal", и т. д.
-    node.supportedImagePrefixes.add("your-game");
+    node.getSupportedImagePrefixes().add("your-game");
     
     // Линкер регистрирует всякие штуки для изоляции игроков между играми
     // Также линкер отвечает за распределение игрока в игру
