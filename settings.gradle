@@ -5,4 +5,4 @@ include 'coordinator',
         'commons',
         'worker-bukkit',
         'worker-bukkit:core',
-        'worker-bukkit:kotlin-sdk',
+        'worker-bukkit:kotlin-sdk'
