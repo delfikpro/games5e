@@ -46,11 +46,11 @@ public void onEnable() {
     // Добавляет игрока в game.players при PlayerInitialSpawnEvent,
     // Изолирует чат, видимость игроков, отключает сообщения входа/выхода/серти,
     // А также пробрасывает Game#getSpawnLocation в эвенты входа и респавна
-    node.linker = SessionBukkitLinker.link(node);
+    node.setLinker(SessionBukkitLinker.link(node));
     
     // Инициализатор игры может вернуть null, и тогда координатор поймёт,
     // что игру создать не удалось.
-    node.gameCreator = YourGame::new;
+    node.setGameCreator(YourGame::new);
 
     // Для тестирования мы можем создать игру напрямую 
     // (даже не подключая координатор)
@@ -85,13 +85,13 @@ public class YourGame extends Game {
         // для эвентов и тасок шедулера.
         // Когда мы определились с местом протекания игры,
         // его нужно добавить в этот конткст
-        context.appendOption(WorldEventFilter(world))
+        context.appendOption(new WorldEventFilter(world));
 
         // Теперь можно слушать любые эвенты, и они будут вызываться
         // только для этого конкретного мира!
-        context.on<PlayerJoinEvent> {
-            player.sendMessage("무궁화 꼬찌 피엇 소리다")
-        }
+        context.on(PlayerJoinEvent.class, () -> {
+            player.sendMessage("무궁화 꼬찌 피엇 소리다");
+        });
 
     }
 
