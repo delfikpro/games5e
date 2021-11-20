@@ -1,6 +1,7 @@
 package dev.implario.games5e.coordinator;
 
 import com.google.inject.Inject;
+import dev.implario.games5e.Games5eGameState;
 import dev.implario.games5e.coordinator.queue.Queue;
 import dev.implario.games5e.coordinator.queue.QueueManager;
 import dev.implario.games5e.coordinator.workers.*;
@@ -59,6 +60,18 @@ public class CoordinatorEndpoint {
 
         });
 
+        server.addListener(PacketGameStatus.class, (talk, packet) -> {
+            GameNode gameNode = balancer.getNodes().stream().filter(node -> node.getRemote() == talk.getRemote()).findFirst().orElse(null);
+            if (gameNode == null) {
+                talk.respond(new PacketError("Not authorized"));
+                return;
+            }
+
+            if (packet.getState() == Games5eGameState.TERMINATED) {
+                gameNode.removeGame(packet.getInfo().getGameId());
+            }
+        });
+
         server.addListener(PacketRequestGameStatus.class, (talk, packet) -> {
 
             RunningGame runningGame = balancer.getRunningGame(packet.getGameId());
@@ -114,6 +127,9 @@ public class CoordinatorEndpoint {
                 talk.respond(new PacketError("No queue with id " + queueId));
                 return;
             }
+            for (Queue otherQueue : queueManager.getQueues()) {
+                otherQueue.removePlayers(packet.getParty());
+            }
             Party party = new Party(packet.getParty(), packet.getBannedOptions(),
                     packet.isAllowSplit(), packet.isAllowExtra());
             queue.addParty(party);
@@ -121,38 +137,31 @@ public class CoordinatorEndpoint {
         });
 
         server.addListener(PacketQueueLeave.class, (talk, packet) -> {
-            UUID queueId = packet.getQueueId();
-            Queue queue = queueManager.getQueue(queueId);
-            if (queue == null) {
-                talk.respond(new PacketError("No queue with id " + queueId));
-                return;
+            for (Queue otherQueue : queueManager.getQueues()) {
+                otherQueue.removePlayers(packet.getPlayers());
             }
-            for (Iterator<Party> iterator = queue.getParties().iterator(); iterator.hasNext(); ) {
-                Party party = iterator.next();
-                party.removeAll(packet.getPlayers());
-                if (party.isEmpty()) iterator.remove();
-            }
-            talk.respond("OK");
+            talk.respond(new PacketOk("OK"));
         });
 
 
         server.addListener(PacketNodeHandshakeV1.class, (talk, packet) -> {
 
             // ToDo: validate token
-            logger.info("New node: " + talk.getRemote().getAddress());
+            // ToDo: reject packet if already authorized
 
             // ToDo: restore running games from packet.activeGames
             List<RunningGame> runningGames = new ArrayList<>();
 
-            // ToDo: reject packet if already authorized
 
             List<String> supportedImagePrefixes = packet.getSupportedImagePrefixes();
+            logger.info("New node: " + talk.getRemote().getAddress() + ", supported image prefixes: " + supportedImagePrefixes);
             GameNodeImpl node = new GameNodeImpl(talk.getRemote(), runningGames, s -> {
                 for (String prefix : supportedImagePrefixes) {
+                    System.out.println("Checking prefix '" + prefix + "' with s = '" + s + "'");
                     if (s.startsWith(prefix)) return true;
                 }
                 return false;
-            }, new HashSet<>());
+            });
 
             node.getRemote().send(new PacketAllQueueStates(queueManager.getQueues().stream()
                     .map(q -> new PacketQueueState(q.getProperties(), q.getParties().stream()
@@ -165,13 +174,10 @@ public class CoordinatorEndpoint {
         });
 
         // Subscription to queue updates
-        server.addListener(PacketSubscribedQueues.class, (talk, packet) -> {
-            talk.getRemote();
+        server.addListener(PacketListenQueues.class, (talk, packet) -> {
             for (GameNode node : balancer.getNodes()) {
                 if (node.getRemote() == talk.getRemote()) {
-                    Set<UUID> queueSubscriptions = node.getQueueSubscriptions();
-                    queueSubscriptions.clear();
-                    queueSubscriptions.addAll(packet.getQueues());
+                    node.setListeningQueues(true);
                 }
             }
         });

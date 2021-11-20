@@ -6,6 +6,7 @@ import dev.implario.games5e.packets.PacketCreateGame;
 import dev.implario.games5e.packets.PacketGameStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,9 @@ public class GameNodeImpl implements GameNode {
     private final NettierRemote remote;
     private final List<RunningGame> runningGames;
     private final Predicate<String> imageFilter;
-    private final Set<UUID> queueSubscriptions;
+
+    @Setter
+    private boolean listeningQueues;
 
     @Override
     public CompletableFuture<RunningGame> startGame(GameInfo info) {
@@ -38,6 +41,11 @@ public class GameNodeImpl implements GameNode {
             runningGame.getMeta().putAll(packet.getMeta());
             return runningGame;
         });
+    }
+
+    @Override
+    public void removeGame(UUID uuid) {
+        runningGames.removeIf(game -> game.getInfo().getGameId().equals(uuid));
     }
 
     @Override

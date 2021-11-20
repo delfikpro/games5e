@@ -14,6 +14,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class SimpleQueueManager implements QueueManager {
 
@@ -31,7 +32,8 @@ public class SimpleQueueManager implements QueueManager {
         this.starter = starter;
         if (Files.exists(filePath)) {
             try {
-                queueMap = gson.fromJson(Files.newBufferedReader(filePath), new TypeToken<Map<UUID, dev.implario.games5e.coordinator.queue.Queue>>() {}.getType());
+                queueMap = Arrays.stream(gson.fromJson(Files.newBufferedReader(filePath), QueueProperties[].class))
+                        .collect(Collectors.toMap(QueueProperties::getQueueId, p -> new Queue(p, getStrategy(p.getStrategy()))));
                 logger.info("Initialized " + queueMap.size() + " queues");
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "Unable to load queues, using empty", ex);
@@ -54,7 +56,7 @@ public class SimpleQueueManager implements QueueManager {
                 for (dev.implario.games5e.coordinator.queue.Queue.Emission emission : emissions) {
                     logger.info("Got an emission from queue " + queueName);
                     starter.startGame(new GameInfo(UUID.randomUUID(), new UUID(0xC0DEC0DEC0DEC0DEL, 0xC0DEC0DEC0DEC0DEL),
-                                    properties.getImageId(), System.currentTimeMillis(), gson.toJsonTree(emission.getPreferences())))
+                                    properties.getImageId(), System.currentTimeMillis(), gson.toJsonTree(emission.mergePreferences())))
                             .whenComplete((game, t) -> {
                                 if (t != null) {
                                     logger.log(Level.SEVERE, "Unable to start game by queue " + queueName, t);

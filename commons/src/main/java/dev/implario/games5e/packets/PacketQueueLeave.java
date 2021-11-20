@@ -9,7 +9,6 @@ import java.util.UUID;
 @Data
 public class PacketQueueLeave {
 
-    private final UUID queueId;
     private final List<UUID> players;
 
 }

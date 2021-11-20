@@ -37,10 +37,25 @@ public class Queue {
         parties.clear();
     }
 
+    public void removePlayers(Collection<UUID> players) {
+        for (Iterator<Party> iterator = parties.iterator(); iterator.hasNext(); ) {
+            Party party = iterator.next();
+            party.removeAll(players);
+            if (party.isEmpty()) iterator.remove();
+        }
+    }
+
     @Data
     public static class Emission {
         private final Map<String, String> preferences;
         private final List<List<UUID>> teams;
+
+        public Map<String, Object> mergePreferences() {
+            Map<String, Object> map = new HashMap<>(preferences);
+            map.put("teams", teams);
+            return map;
+        }
+
     }
 
 }

@@ -3,6 +3,7 @@ package dev.implario.games5e.coordinator.workers;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,7 +16,7 @@ public class SimpleBalancer implements Balancer {
     public GameNode getSufficientNode(String imageId) {
         return nodes.stream()
                 .filter(node -> node.isImageSupported(imageId))
-                .findFirst()
+                .min(Comparator.comparingInt(node -> node.getRunningGames().size()))
                 .orElse(null);
     }
 

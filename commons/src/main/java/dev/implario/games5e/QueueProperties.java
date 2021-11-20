@@ -2,6 +2,8 @@ package dev.implario.games5e;
 
 import com.google.gson.JsonElement;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.*;
 
@@ -58,22 +60,24 @@ public class QueueProperties {
      */
     private final Map<String, String> tags = new HashMap<>();
 
-    private final transient Map<MapDefinition, List<MapDefinition>> aggregatedDefinitions = new HashMap<>();
-
-    public Map<MapDefinition, List<MapDefinition>> getAggregatedDefinitions() {
-        if (aggregatedDefinitions.isEmpty()) {
-            if (mapDefinitions == null || mapDefinitions.isEmpty()) {
-                aggregatedDefinitions.put(globalMapDefinition, Collections.singletonList(globalMapDefinition));
-            } else {
-                for (MapDefinition definition : mapDefinitions) {
-                    MapDefinition key = new MapDefinition(null, definition.getSize(), definition.getAmount());
-                    aggregatedDefinitions.computeIfAbsent(key, k -> new ArrayList<>()).add(definition);
-                }
-            }
-        }
-
-        return aggregatedDefinitions;
-    }
+//    @ToString.Exclude
+//    @EqualsAndHashCode.Exclude
+//    private final transient Map<MapDefinition, List<MapDefinition>> aggregatedDefinitions = new HashMap<>();
+//
+//    public Map<MapDefinition, List<MapDefinition>> getAggregatedDefinitions() {
+//        if (aggregatedDefinitions.isEmpty()) {
+//            if (mapDefinitions == null || mapDefinitions.isEmpty()) {
+//                aggregatedDefinitions.put(globalMapDefinition, Collections.singletonList(globalMapDefinition));
+//            } else {
+//                for (MapDefinition definition : mapDefinitions) {
+//                    MapDefinition key = new MapDefinition(null, definition.getSize(), definition.getAmount());
+//                    aggregatedDefinitions.computeIfAbsent(key, k -> new ArrayList<>()).add(definition);
+//                }
+//            }
+//        }
+//
+//        return aggregatedDefinitions;
+//    }
 
     /**
      * Bounds are inclusive from both ends

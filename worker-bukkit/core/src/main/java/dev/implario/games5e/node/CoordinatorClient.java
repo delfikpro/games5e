@@ -4,7 +4,9 @@ import com.google.gson.JsonElement;
 import dev.implario.games5e.packets.*;
 import dev.implario.nettier.Nettier;
 import dev.implario.nettier.NettierClient;
+import dev.implario.nettier.NettierNode;
 import dev.implario.nettier.RemoteException;
+import dev.implario.nettier.impl.client.NettierClientImpl;
 import implario.Environment;
 import dev.implario.games5e.GameInfo;
 import dev.implario.games5e.Games5eGameState;
@@ -12,6 +14,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -19,14 +23,14 @@ import java.util.*;
 
 @Getter
 @RequiredArgsConstructor
-public class CoordinatorClient {
+public class CoordinatorClient implements Listener {
 
     private final GameNode node;
 
     @Setter
     private NettierClient client;
 
-    private final Set<UUID> subscribedQueues = new HashSet<>();
+    private boolean listeningQueues = false;
 
     private List<PacketQueueState> allQueues = new ArrayList<>();
 
@@ -42,7 +46,7 @@ public class CoordinatorClient {
         });
 
         Plugin plugin = JavaPlugin.getProvidingPlugin(CoordinatorClient.class);
-        client.setExecutor(task -> Bukkit.getScheduler().runTask(plugin, task));
+        ((NettierNode) client).setExecutor(task -> Bukkit.getScheduler().runTask(plugin, task));
 
         client.addListener(PacketCreateGame.class, (talk, packet) -> {
 
@@ -66,8 +70,13 @@ public class CoordinatorClient {
 
         });
 
+        Bukkit.getPluginManager().registerEvents(this, JavaPlugin.getProvidingPlugin(getClass()));
+
         System.out.println("Connecting to games5e coordinator...");
-        client.connect("127.0.0.1", Environment.requireInt("GAMES5E_COORDINATOR_PORT"));
+        client.connect(
+                Environment.get("GAMES5E_COORDINATOR_HOST", "127.0.0.1"),
+                Environment.requireInt("GAMES5E_COORDINATOR_PORT")
+        );
 
         System.out.println("Connected!");
 
@@ -77,20 +86,23 @@ public class CoordinatorClient {
 
         client.setHandshakeHandler(r -> {
             r.send(new PacketNodeHandshakeV1("", node.getSupportedImagePrefixes(), new ArrayList<>(node.getRunningGames().keySet())));
-            updateSubscribedQueues();
+            if (listeningQueues) listenQueues();
         });
 
     }
 
-    public void updateSubscribedQueues() {
-        client.send(new PacketSubscribedQueues(subscribedQueues));
+    @EventHandler
+    public void onTerminate(GameTerminateEvent e) {
+        if (client != null) {
+            // ToDo: Better status packets
+            client.send(new PacketGameStatus(new GameInfo(e.getGame().getId(), null, null, 0, null),
+                    e.getGame().getMeta(), Games5eGameState.TERMINATED));
+        }
     }
 
-    public void subscribeToAllQueues() {
-        subscribedQueues.clear();
-        for (PacketQueueState queue : allQueues) {
-            subscribedQueues.add(queue.getProperties().getQueueId());
-        }
+    public void listenQueues() {
+        listeningQueues = true;
+        if (client != null) client.send(new PacketListenQueues());
     }
 
 

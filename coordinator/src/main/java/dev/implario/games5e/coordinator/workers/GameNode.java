@@ -18,6 +18,10 @@ public interface GameNode {
 
     CompletableFuture<RunningGame> startGame(GameInfo info);
 
-    Set<UUID> getQueueSubscriptions();
+    void removeGame(UUID uuid);
+
+    boolean isListeningQueues();
+
+    void setListeningQueues(boolean listeningQueues);
 
 }

@@ -13,20 +13,20 @@ public class PerfectQueueStrategy implements QueueStrategy {
     @Override
     public List<Queue.Emission> tryEmitMax(Queue queue) {
 
-        List<Party> parties = queue.getParties();
-        val aggregatedVariants = queue.getProperties().getAggregatedDefinitions();
-        val mapVariants = new ArrayList<>(aggregatedVariants.keySet());
-        Collections.shuffle(mapVariants);
+//        List<Party> parties = queue.getParties();
+//        val aggregatedVariants = queue.getProperties().getAggregatedDefinitions();
+//        val mapVariants = new ArrayList<>(aggregatedVariants.keySet());
+//        Collections.shuffle(mapVariants);
 
         List<Queue.Emission> emissions = new ArrayList<>();
 
-        for (QueueProperties.MapDefinition mapVariant : mapVariants) {
-            while (true) {
-                Queue.Emission pass = pass(queue, mapVariant.getAmount().getMax(), mapVariant.getSize().getMax(), mapVariant.getMap());
-                if (pass == null) break;
-                emissions.add(pass);
-            }
-        }
+//        for (QueueProperties.MapDefinition mapVariant : mapVariants) {
+//            while (true) {
+//                Queue.Emission pass = pass(queue, mapVariant.getAmount().getMax(), mapVariant.getSize().getMax(), mapVariant.getMap());
+//                if (pass == null) break;
+//                emissions.add(pass);
+//            }
+//        }
         return emissions;
     }
 

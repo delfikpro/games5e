@@ -7,8 +7,6 @@ import java.util.Set;
 import java.util.UUID;
 
 @Data
-public class PacketSubscribedQueues {
-
-    private final Set<UUID> queues;
+public class PacketListenQueues {
 
 }

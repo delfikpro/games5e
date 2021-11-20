@@ -48,10 +48,10 @@ public class App {
         }
 
         Injector injector = Guice.createInjector(binder -> {
-            binder.bind(Scheduler.class).to(SimpleScheduler.class);
-            binder.bind(Balancer.class).to(SimpleBalancer.class);
-            binder.bind(GameStarter.class).to(SimpleGameStarter.class);
-            binder.bind(QueueManager.class).to(SimpleQueueManager.class);
+            binder.bind(Scheduler.class).to(SimpleScheduler.class).asEagerSingleton();
+            binder.bind(Balancer.class).to(SimpleBalancer.class).asEagerSingleton();
+            binder.bind(GameStarter.class).to(SimpleGameStarter.class).asEagerSingleton();
+            binder.bind(QueueManager.class).to(SimpleQueueManager.class).asEagerSingleton();
         });
 
         injector.getInstance(CoordinatorEndpoint.class).start(port);

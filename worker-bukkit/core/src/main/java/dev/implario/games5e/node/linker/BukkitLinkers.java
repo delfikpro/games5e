@@ -4,6 +4,7 @@ import com.destroystokyo.paper.event.player.PlayerInitialSpawnEvent;
 import dev.implario.bukkit.event.EventContext;
 import dev.implario.games5e.node.DefaultGameNode;
 import dev.implario.games5e.node.Game;
+import dev.implario.games5e.node.GameTerminateEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -39,8 +40,9 @@ public class BukkitLinkers {
             }
             for (UUID uuid : toRemove) {
                 Game game = node.getGameByGameId(uuid);
-                node.getRunningGames().remove(uuid);
                 game.getContext().unregisterAll();
+                node.getRunningGames().remove(uuid);
+                Bukkit.getPluginManager().callEvent(new GameTerminateEvent(game));
             }
         });
     }

@@ -56,13 +56,9 @@ public class SessionBukkitLinker implements BukkitLinker {
     public Game getGameByPlayerId(UUID playerId) {
         Game game = playerMap.get(playerId);
         if (game != null) {
-            System.out.println("Getting game for " + playerId + ": by player " + game.getId());
             return game;
         } else {
-            Game ifPresent = joiningPlayers.getIfPresent(new IdentityUUID(playerId));
-            System.out.println("Getting game for " + playerId + ": by cache " +
-                    (ifPresent != null ? ifPresent.getId() : null));
-            return ifPresent;
+            return joiningPlayers.getIfPresent(new IdentityUUID(playerId));
         }
     }
 }
