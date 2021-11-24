@@ -11,7 +11,6 @@ import java.util.function.Function;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
 public class Teams<T> {
 
     private final List<T> teams;
@@ -22,7 +21,20 @@ public class Teams<T> {
     private final Map<UUID, T> playerMap = new HashMap<>();
     private final Map<T, Set<Player>> realPlayers = new IdentityHashMap<>();
 
-    private Function<Teams<T>, T> autoAssigner = Teams::getLeastAssignations;
+    private Function<Teams<T>, T> autoAssigner;
+
+    public Teams(List<T> teams, Function<Teams<T>, T> autoAssigner) {
+        this.teams = teams;
+        this.autoAssigner = autoAssigner;
+        for (T team : teams) {
+            realPlayers.put(team, new HashSet<>());
+            assignations.put(team, new HashSet<>());
+        }
+    }
+
+    public Teams(List<T> teams) {
+        this(teams, Teams::getLeastAssignations);
+    }
 
     public Teams() {
         this(new ArrayList<>());
