@@ -18,8 +18,6 @@ public interface GameNode {
 
     BukkitLinker getLinker();
 
-    java.util.Map<UUID, Game> getPlayerMap();
-
     void setGameCreator(GameCreator gameCreator);
 
     void setLinker(BukkitLinker linker);

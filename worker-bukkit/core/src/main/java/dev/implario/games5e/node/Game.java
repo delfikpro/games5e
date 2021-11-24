@@ -1,15 +1,19 @@
 package dev.implario.games5e.node;
 
 import dev.implario.bukkit.event.EventContext;
+import dev.implario.bukkit.routine.Routine;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Delegate;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerLoginEvent;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,7 +28,14 @@ public abstract class Game implements PlayerFilter {
 
     protected final Set<Player> players = new HashSet<>();
 
+    protected final List<World> worlds = new ArrayList<>();
+
     protected final Map<String, String> meta = new HashMap<>();
+
+    private final Routine ticker = context.every(1, Routine.EMPTY_ACTION);
+
+    @Setter
+    private boolean terminated;
 
     @Setter
     private long emptySince;
@@ -35,6 +46,10 @@ public abstract class Game implements PlayerFilter {
         for (Player player : players) {
             player.sendMessage(messages);
         }
+    }
+
+    public void onTerminate(Consumer<Routine> action) {
+        ticker.onKill(action);
     }
 
 }

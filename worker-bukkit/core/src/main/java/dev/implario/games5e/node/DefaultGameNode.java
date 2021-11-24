@@ -5,6 +5,7 @@ import dev.implario.games5e.node.linker.BukkitLinker;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Delegate;
+import org.bukkit.event.player.PlayerLoginEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,8 +23,6 @@ public class DefaultGameNode implements GameNode {
     @Delegate
     private BukkitLinker linker;
 
-    private final Map<UUID, Game> playerMap = new ConcurrentHashMap<>();
-
     @Override
     public Game createGame(UUID gameId, String imageId, JsonElement settings) {
 
@@ -32,6 +31,8 @@ public class DefaultGameNode implements GameNode {
             throw new IllegalArgumentException("Creator " + gameCreator.getClass() +
                     " refused to create game '" + imageId + "'");
         }
+        game.getContext().appendOption(event -> event instanceof PlayerLoginEvent &&
+                getGameByPlayer(((PlayerLoginEvent) event).getPlayer()) == game);
         runningGames.put(gameId, game);
         return game;
 

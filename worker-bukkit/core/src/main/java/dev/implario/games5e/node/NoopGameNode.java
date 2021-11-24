@@ -42,11 +42,6 @@ public class NoopGameNode implements GameNode {
     }
 
     @Override
-    public Map<UUID, Game> getPlayerMap() {
-        return Collections.emptyMap();
-    }
-
-    @Override
     public void setGameCreator(GameCreator gameCreator) {
         throw new UnsupportedOperationException();
     }

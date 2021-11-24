@@ -107,6 +107,7 @@ public class QueueProperties {
         private final String map;
         private final Bounds size;
         private final Bounds amount;
+        private final Map<String, String> tags;
     }
 
 }

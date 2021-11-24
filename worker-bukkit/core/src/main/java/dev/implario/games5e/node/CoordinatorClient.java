@@ -6,7 +6,6 @@ import dev.implario.nettier.Nettier;
 import dev.implario.nettier.NettierClient;
 import dev.implario.nettier.NettierNode;
 import dev.implario.nettier.RemoteException;
-import dev.implario.nettier.impl.client.NettierClientImpl;
 import implario.Environment;
 import dev.implario.games5e.GameInfo;
 import dev.implario.games5e.Games5eGameState;

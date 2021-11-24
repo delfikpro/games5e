@@ -35,9 +35,11 @@ subprojects {
         compileOnly 'org.projectlombok:lombok:1.18.16'
         annotationProcessor 'org.projectlombok:lombok:1.18.16'
 
-        api 'dev.implario:nettier:1.2.1'
-        api 'implario:humanize:1.1.3'
-        api 'implario:java-tools:1.1.3'
+        if (project.name != 'commons') {
+            api 'dev.implario:nettier:1.2.1'
+            api 'implario:humanize:1.1.3'
+            api 'implario:java-tools:1.1.3'
+        }
     }
 }
 

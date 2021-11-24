@@ -7,6 +7,7 @@ import dev.implario.games5e.node.Game;
 import dev.implario.games5e.node.GameTerminateEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -29,6 +30,10 @@ public class BukkitLinkers {
             long time = System.currentTimeMillis();
             List<UUID> toRemove = new ArrayList<>();
             for (Game game : node.getRunningGames().values()) {
+                if (game.isTerminated()) {
+                    toRemove.add(game.getId());
+                    continue;
+                }
                 if (game.getPlayers().stream().noneMatch(Player::isOnline)) {
                     if (game.getEmptySince() != 0 && game.getEmptySince() - time > 60000) {
                         toRemove.add(game.getId());
@@ -39,10 +44,19 @@ public class BukkitLinkers {
                 }
             }
             for (UUID uuid : toRemove) {
+                System.out.println("Cleaning up game " + uuid + "...");
                 Game game = node.getGameByGameId(uuid);
+                for (Player player : game.getPlayers()) {
+                    player.kickPlayer("Game over");
+                }
+                for (World world : game.getWorlds()) {
+                    Bukkit.unloadWorld(world, false);
+                }
+                game.getWorlds().clear();
                 game.getContext().unregisterAll();
                 node.getRunningGames().remove(uuid);
                 Bukkit.getPluginManager().callEvent(new GameTerminateEvent(game));
+                System.out.println("Finished cleaning game " + uuid + ".");
             }
         });
     }
