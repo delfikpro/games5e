@@ -10,6 +10,7 @@ public class PacketQueueUpdate {
 
     private final UUID queueId;
     private final List<UUID> left;
-    private final List<UUID> joined;
+    private final List<List<UUID>> joined;
+    private final int totalPlayers;
 
 }

@@ -98,9 +98,9 @@ public class SimpleQueueManager implements QueueManager {
     public QueueStrategy getStrategy(String name) {
         switch (name) {
             case "simple":
-                return new SimpleLaxQueueStrategy(0);
+                return new SimpleLaxQueueStrategy();
             case "lax":
-                return new SimpleLaxQueueStrategy(0.1);
+                return new SimpleLaxQueueStrategy();
         }
         throw new IllegalArgumentException("No strategy for string " + name);
     }

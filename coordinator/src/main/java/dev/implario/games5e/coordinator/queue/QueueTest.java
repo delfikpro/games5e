@@ -21,17 +21,18 @@ public class QueueTest {
                 new QueueProperties(
                         queueId,
                         "squidgame",
-                        new QueueProperties.MapDefinition(null, new QueueProperties.Bounds(60, 100), new QueueProperties.Bounds(1, 1)),
+                        new QueueProperties.MapDefinition(null, new QueueProperties.Bounds(60, 100), new QueueProperties.Bounds(1, 1),
+                                new HashMap<>()),
                         Collections.emptyList(),
                         new HashMap<>(),
                         "lax"
                 ),
-                new SimpleLaxQueueStrategy(0.0)
+                new SimpleLaxQueueStrategy()
         );
 
         Scanner scanner = new Scanner(System.in);
 
-        QueueStrategy strategy = new SimpleLaxQueueStrategy(0);
+        QueueStrategy strategy = new SimpleLaxQueueStrategy();
 
         System.out.println("a");
         long l = System.currentTimeMillis();
@@ -44,7 +45,10 @@ public class QueueTest {
 
         System.out.println("b " + (System.currentTimeMillis() - l) + " " + s);
         while (scanner.hasNext()) {
-            scanner.next();
+            String next = scanner.next();
+            String[] ss = next.split("\\*");
+//            int times = ss[0];
+            Integer.parseInt(next);
             for (int a = 0; a < 1; a++) {
 
 
