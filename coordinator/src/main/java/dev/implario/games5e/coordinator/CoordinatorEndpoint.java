@@ -28,11 +28,17 @@ public class CoordinatorEndpoint {
     private final Scheduler scheduler;
 
     public void start(int port) {
-
         Logger logger = LoggerUtils.simpleLogger("games5e-coordinator");
 
         NettierServer server = Nettier.createServer();
         server.setExecutor(scheduler::run);
+
+        scheduler.repeatEvery(1000, () -> {
+            for (GameNode node : balancer.getNodes()) {
+                if (!node.canCreateGame() && node.getRunningGames().size() == 0)
+                    node.destroy();
+            }
+        });
 
         server.setPacketTranslator((packet, expectedType) -> {
             if (packet instanceof PacketError) {
@@ -143,6 +149,10 @@ public class CoordinatorEndpoint {
             talk.respond(new PacketOk("OK"));
         });
 
+        server.addListener(PacketImageUpdate.class, (talk, packet) -> balancer.getNodes().forEach(x -> {
+            if (x.isImageSupported(packet.getImageId()))
+                x.setCanCreateGame(false);
+        }));
 
         server.addListener(PacketNodeHandshakeV1.class, (talk, packet) -> {
 
@@ -152,7 +162,6 @@ public class CoordinatorEndpoint {
             // ToDo: restore running games from packet.activeGames
             List<RunningGame> runningGames = new ArrayList<>();
 
-
             List<String> supportedImagePrefixes = packet.getSupportedImagePrefixes();
             logger.info("New node: " + talk.getRemote().getAddress() + ", supported image prefixes: " + supportedImagePrefixes);
             GameNodeImpl node = new GameNodeImpl(talk.getRemote(), runningGames, s -> {
@@ -161,7 +170,7 @@ public class CoordinatorEndpoint {
                     if (s.startsWith(prefix)) return true;
                 }
                 return false;
-            });
+            }, balancer);
 
             node.getRemote().send(new PacketAllQueueStates(queueManager.getQueues().stream()
                     .map(q -> new PacketQueueState(q.getProperties(), q.getParties().stream()

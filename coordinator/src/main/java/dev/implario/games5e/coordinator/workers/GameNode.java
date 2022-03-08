@@ -10,6 +10,16 @@ import java.util.concurrent.CompletableFuture;
 
 public interface GameNode {
 
+    boolean canCreateGame();
+
+    void setCanCreateGame(boolean canCreateGame);
+
+    void destroy();
+
+    UUID getId();
+
+    void setId(UUID id);
+
     boolean isImageSupported(String imageId);
 
     NettierRemote getRemote();

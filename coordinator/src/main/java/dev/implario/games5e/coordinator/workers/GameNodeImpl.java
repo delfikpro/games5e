@@ -7,10 +7,10 @@ import dev.implario.games5e.packets.PacketGameStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import ru.kdev.k8sapi.K8S;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
@@ -19,16 +19,21 @@ import java.util.function.Predicate;
 @RequiredArgsConstructor
 public class GameNodeImpl implements GameNode {
 
+    private static final String GAMES5E_NAMESPACE = System.getenv("GAMES5E_NAMESPACE");
+
     private final NettierRemote remote;
     private final List<RunningGame> runningGames;
     private final Predicate<String> imageFilter;
+    private final Balancer balancer;
+    @Setter
+    private UUID id = UUID.randomUUID();
+    private boolean canCreateGame = true;
 
     @Setter
     private boolean listeningQueues;
 
     @Override
     public CompletableFuture<RunningGame> startGame(GameInfo info) {
-
         if (!imageFilter.test(info.getImageId())) {
             return null;
         }
@@ -46,6 +51,22 @@ public class GameNodeImpl implements GameNode {
     @Override
     public void removeGame(UUID uuid) {
         runningGames.removeIf(game -> game.getInfo().getGameId().equals(uuid));
+    }
+
+    @Override
+    public boolean canCreateGame() {
+        return canCreateGame;
+    }
+
+    @Override
+    public void setCanCreateGame(boolean canCreateGame) {
+        this.canCreateGame = canCreateGame;
+    }
+
+    @Override
+    public void destroy() {
+        balancer.getNodes().removeIf(x -> x.equals(this));
+        K8S.INSTANCE.removePod(GAMES5E_NAMESPACE, id.toString());
     }
 
     @Override

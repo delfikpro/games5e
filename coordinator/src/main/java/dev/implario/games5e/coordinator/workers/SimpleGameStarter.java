@@ -5,6 +5,7 @@ import dev.implario.games5e.GameInfo;
 import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 @RequiredArgsConstructor(onConstructor_ = {@Inject})
@@ -18,17 +19,32 @@ public class SimpleGameStarter implements GameStarter {
 
         logger.info("Creating game " + gameInfo);
 
-        GameNode node = balancer.getSufficientNode(gameInfo.getImageId());
+        CompletableFuture<GameNode> nodeFuture = balancer.getSufficientNode(gameInfo.getImageId());
 
-        // ToDo: more logs
-        if (node == null) {
-            CompletableFuture<RunningGame> future = new CompletableFuture<>();
-            future.completeExceptionally(new IllegalStateException("Unable to find a sufficient node for your game"));
-            return future;
-        }
+        CompletableFuture<RunningGame> runningGameCompletableFuture = new CompletableFuture<>();
 
-        // ToDo: maybe check if game with that id already exists
-        return node.startGame(gameInfo);
+        nodeFuture.whenComplete((node, __) -> {
+            // ToDo: more logs
+            if (node == null) {
+                CompletableFuture<RunningGame> future = new CompletableFuture<>();
+                future.completeExceptionally(new IllegalStateException("Unable to find a sufficient node for your game"));
+                try {
+                    runningGameCompletableFuture.complete(future.get());
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+
+                return;
+            }
+
+            try {
+                runningGameCompletableFuture.complete(node.startGame(gameInfo).get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        });
+
+        return runningGameCompletableFuture;
     }
 
 }

@@ -45,7 +45,7 @@ public class CoordinatorClient implements Listener {
         });
 
         Plugin plugin = JavaPlugin.getProvidingPlugin(CoordinatorClient.class);
-        ((NettierNode) client).setExecutor(task -> Bukkit.getScheduler().runTask(plugin, task));
+        client.setExecutor(task -> Bukkit.getScheduler().runTask(plugin, task));
 
         client.addListener(PacketCreateGame.class, (talk, packet) -> {
 

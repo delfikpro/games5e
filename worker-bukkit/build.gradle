@@ -14,7 +14,7 @@ allprojects {
         maven {
             url 'https://repo.implario.dev/cristalix/'
             credentials {
-                username = System.getenv("IMPLARIO_REPO_USER")
+                username = System.getenv("IMPLARIO_REPO_USERNAME")
                 password = System.getenv("IMPLARIO_REPO_PASSWORD")
             }
         }
