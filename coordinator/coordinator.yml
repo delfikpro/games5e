@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+    name: coordinator
+spec:
+    containers:
+        - name: coordinator
+          image: fiwka/coordinator
+          imagePullPolicy: Never
+          ports:
+          - containerPort: 1123

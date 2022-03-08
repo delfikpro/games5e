@@ -1,0 +1,3 @@
+{
+	"test": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: test-game-node\nspec:\n  containers:\n  - name: test-game-node\n    image: fiwka/test-game-node\n    imagePullPolicy: Never\n    ports:\n    - containerPort: 1123"
+}

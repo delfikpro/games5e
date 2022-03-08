@@ -22,6 +22,8 @@ jar {
     dependsOn(project(':commons').tasks.jar)
     from {
         configurations.runtimeClasspath.collect(project.&zipTree)
+    } {
+        exclude 'META-INF', 'META-INF/**'
     }
     manifest {
         attributes 'Main-Class': 'dev.implario.games5e.coordinator.App'

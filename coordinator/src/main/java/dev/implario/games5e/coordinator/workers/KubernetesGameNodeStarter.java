@@ -20,14 +20,14 @@ public class KubernetesGameNodeStarter implements GameNodeStarter {
     private final ImageConfigurationsProvider<V1Pod, Path> configurationsProvider;
 
     static {
-        if (!K8S.INSTANCE.isPodNamespaceExists(GAMES5E_NAMESPACE)) {
+        if (!K8S.isPodNamespaceExists(GAMES5E_NAMESPACE)) {
             V1Namespace namespace = new V1Namespace();
 
             namespace.apiVersion("v1");
             namespace.kind("Namespace");
             namespace.metadata(new V1ObjectMeta().name(GAMES5E_NAMESPACE));
 
-            K8S.INSTANCE.createNamespace(namespace);
+            K8S.createNamespace(namespace);
         }
     }
 
@@ -40,7 +40,7 @@ public class KubernetesGameNodeStarter implements GameNodeStarter {
 
         Optional.ofNullable(pod.getMetadata()).ifPresent(x -> x.name(newId.toString()));
 
-        K8S.INSTANCE.createPod(GAMES5E_NAMESPACE, pod);
+        K8S.createPod(GAMES5E_NAMESPACE, pod);
 
         return newId;
     }
