@@ -9,6 +9,7 @@ import lombok.Getter;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +35,10 @@ public class SessionBukkitLinker implements BukkitLinker {
             event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
 
         });
-        BukkitLinkers.handleSpawnLocations(linker, context, (game, player) -> linker.playerMap.put(player.getUniqueId(), game));
+        BukkitLinkers.handleSpawnLocations(linker, context,
+                (game, player) -> linker.playerMap.put(player.getUniqueId(), game),
+                (game, player) -> linker.playerMap.remove(player.getUniqueId(), game)
+        );
         BukkitLinkers.isolateChat(linker, context);
         BukkitLinkers.isolatePlayerVisibility(linker, context);
         BukkitLinkers.disableDeathMessages(context);
@@ -50,7 +54,9 @@ public class SessionBukkitLinker implements BukkitLinker {
             .expireAfterWrite(30, TimeUnit.SECONDS)
             .build();
 
-    private final Map<UUID, Game> playerMap = new ConcurrentHashMap<>();
+    private final Map<UUID, Game> playerMap = new IdentityHashMap<>();
+
+    protected SessionBukkitLinker() { }
 
     @Override
     public Game getGameByPlayerId(UUID playerId) {

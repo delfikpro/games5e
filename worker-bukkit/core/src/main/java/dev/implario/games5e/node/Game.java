@@ -34,6 +34,8 @@ public abstract class Game implements PlayerFilter {
 
     private final Routine ticker = context.every(1, Routine.EMPTY_ACTION);
 
+    private final long initTimestamp = System.currentTimeMillis();
+
     @Setter
     private boolean terminated;
 

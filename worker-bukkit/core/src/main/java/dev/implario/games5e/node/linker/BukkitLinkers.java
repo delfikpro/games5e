@@ -35,7 +35,7 @@ public class BukkitLinkers {
                     continue;
                 }
                 if (game.getPlayers().stream().noneMatch(Player::isOnline)) {
-                    if (game.getEmptySince() != 0 && game.getEmptySince() - time > 60000) {
+                    if (game.getEmptySince() != 0 && time - game.getEmptySince() > 60000) {
                         toRemove.add(game.getId());
                     }
                     game.setEmptySince(time);
@@ -46,10 +46,10 @@ public class BukkitLinkers {
             for (UUID uuid : toRemove) {
                 System.out.println("Cleaning up game " + uuid + "...");
                 Game game = node.getGameByGameId(uuid);
-                for (Player player : game.getPlayers()) {
+                for (Player player : new ArrayList<>(game.getPlayers())) {
                     player.kickPlayer("Game over");
                 }
-                for (World world : game.getWorlds()) {
+                for (World world : new ArrayList<>(game.getWorlds())) {
                     Bukkit.unloadWorld(world, false);
                 }
                 game.getWorlds().clear();
@@ -98,7 +98,8 @@ public class BukkitLinkers {
     }
 
     public static void handleSpawnLocations(BukkitLinker linker, EventContext context,
-                                            BiConsumer<Game, Player> spawnHandler) {
+                                            BiConsumer<Game, Player> spawnHandler,
+                                            BiConsumer<Game, Player> quitHandler) {
 
         // We are trying to add player in Game#players list as early as possible
         // But PlayerLoginEvent doesn't fit us 'cause it can be called in a separate tick
@@ -156,6 +157,8 @@ public class BukkitLinkers {
             if (game != null) {
                 game.getPlayers().remove(e.getPlayer());
             }
+            quitHandler.accept(game, e.getPlayer());
+
         });
 
     }

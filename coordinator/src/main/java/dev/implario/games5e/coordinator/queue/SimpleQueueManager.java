@@ -101,6 +101,8 @@ public class SimpleQueueManager implements QueueManager {
                 return new SimpleLaxQueueStrategy();
             case "lax":
                 return new SimpleLaxQueueStrategy();
+            case "noop":
+                return new NoopQueueStrategy();
         }
         throw new IllegalArgumentException("No strategy for string " + name);
     }

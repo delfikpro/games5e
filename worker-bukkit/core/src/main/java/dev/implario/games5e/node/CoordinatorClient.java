@@ -32,6 +32,7 @@ public class CoordinatorClient implements Listener {
     private boolean listeningQueues = false;
 
     private List<PacketQueueState> allQueues = new ArrayList<>();
+    private final Map<UUID, Integer> queueOnline = new HashMap<>();
 
     public void enable() {
 
@@ -81,6 +82,10 @@ public class CoordinatorClient implements Listener {
 
         client.addListener(PacketAllQueueStates.class, (talk, packet) -> {
             allQueues = packet.getStates();
+        });
+
+        client.addListener(PacketQueueUpdate.class, (talk, packet) -> {
+            queueOnline.put(packet.getQueueId(), packet.getTotalPlayers());
         });
 
         client.setHandshakeHandler(r -> {

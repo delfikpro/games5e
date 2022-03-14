@@ -183,6 +183,28 @@ public class CoordinatorEndpoint {
         });
 
         server.start(port);
+
+        Map<UUID, List<UUID>> lastQueued = new HashMap<>();
+
+//        scheduler.repeatEvery(250, () -> {
+//
+//            for (Queue queue : queueManager.getQueues()) {
+//                List<UUID> last = lastQueued.get(queue.getProperties().getQueueId());
+//                if (last == null) last = queue.getParties();
+//            }
+//
+//        });
+
+        scheduler.repeatEvery(500, () -> {
+            for (GameNode node : balancer.getNodes()) {
+                if (node.isListeningQueues()) {
+                    for (Queue queue : queueManager.getQueues()) {
+                        node.getRemote().send(new PacketQueueUpdate(queue.getProperties().getQueueId(), null, null,
+                                queue.getParties().stream().mapToInt(Party::size).sum()));
+                    }
+                }
+            }
+        });
         logger.info("Started on port :" + port);
 
     }

@@ -1,7 +1,6 @@
 package dev.implario.games5e.node;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -40,6 +39,22 @@ public class Teams<T> {
         this(new ArrayList<>());
     }
 
+    public void fillAssignations(List<List<UUID>> uuidLists) {
+        if (uuidLists.size() > this.teams.size()) {
+            throw new IllegalArgumentException("Not enough teams (created " + this.teams.size() +
+                    ", required at least " + uuidLists.size() + ")");
+        }
+        Iterator<List<UUID>> uuidListIterator = uuidLists.iterator();
+        Iterator<T> teamIterator = this.teams.iterator();
+        while (uuidListIterator.hasNext()) {
+            T team = teamIterator.next();
+            List<UUID> uuidList = uuidListIterator.next();
+            for (UUID uuid : uuidList) {
+                addAssignation(uuid, team);
+            }
+        }
+    }
+
     public T getAssignation(UUID playerId) {
         return assignationMap.get(playerId);
     }
@@ -56,9 +71,13 @@ public class Teams<T> {
         T team = assignationMap.get(playerId);
         if (team != null) return team;
         team = autoAssigner.apply(this);
+        this.addAssignation(playerId, team);
+        return team;
+    }
+
+    public void addAssignation(UUID playerId, T team) {
         assignationMap.put(playerId, team);
         assignations.computeIfAbsent(team, (k) -> new HashSet<>()).add(playerId);
-        return team;
     }
 
     public T getLeastAssignations() {
